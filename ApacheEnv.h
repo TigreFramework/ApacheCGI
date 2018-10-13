@@ -10,7 +10,7 @@
 #include <TigreFramework/Core/Kernel/Application/Env.h>
 #include <TigreFramework/Core/Kernel/Application/Configurable.h>
 
-class ApacheEnv : public Env, public Configurable {
+class ApacheEnv : public Env {
 
     public:
         virtual std::string get(std::string name, std::string default_value="");

@@ -7,13 +7,19 @@
 
 
 #include <TigreFramework/Core/Kernel/HttpCore.h>
-#include <TigreFramework/Core/Kernel/Application/Configurable.h>
 
-class ApacheHttpCore : public HttpCore, public Configurable {
+class ApacheHttpCore : public HttpCore {
 
     public:
         void handle() override;
-        std::map<std::string, std::string> getHeaders();
+        void addHeader(std::string name, std::string value) override;
+        std::string getHeaders() override;
+        std::string getPostData() override;
+        std::map<std::string, std::string> getRequestHeaders();
+
+    private:
+        std::vector<std::string> headers;
+        std::map<std::string, std::string> requestHeaders;
 
 };
 

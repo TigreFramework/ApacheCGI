@@ -8,9 +8,10 @@ set(SYSTEM_FILES
         ApacheServiceProvider.cpp
         ApacheResponseStream.cpp
         ApacheHttpCore.cpp
+        Event/RequestEvent.cpp
 )
 
 set(SOURCE_FILES ${SYSTEM_FILES})
 
 add_library(tgApacheCgi ${SYSTEM_FILES})
-target_link_libraries(tgApacheCgi String)
+target_link_libraries(tgApacheCgi String tgcore)

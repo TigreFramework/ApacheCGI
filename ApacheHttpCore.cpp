@@ -10,19 +10,31 @@
 #include <TigreFramework/Core/Kernel/Router.h>
 #include <TigreFramework/Core/Kernel/Application.h>
 #include <TigreFramework/String/String.h>
+#include <TigreFramework/Core/Event/Event.h>
+#include <TigreFramework/Apache/Event/RequestEvent.h>
 #include "ApacheHttpCore.h"
 #include "ApacheResponseStream.h"
 
 void ApacheHttpCore::handle() {
+    RequestEvent requestEventStated("request.started");
+    Event::emit("request.started", requestEventStated);
+
     Response response;
-    ResponseStream * stream = (ResponseStream *) Configuration::get("Response.Stream");
+    auto stream = Configuration::Get<ResponseStream*>("Response.Stream");
     try {
         //Mount the Request
-        Request request(this->getHeaders());
+        Request request(this->getRequestHeaders());
+
+        RequestEvent requestEventInitiated("request.initiated", &request);
+        Event::emit("request.initiated", requestEventInitiated);
+
         //Pass the request to the Router System Registered
         Router * router = (Router *) Configuration::get("Router");
         //Receive the Response or an Exception
         response = router->handle(&request);
+
+        RequestEvent requestEventProcessed("request.processed", &request, &response);
+        Event::emit("request.processed", requestEventProcessed);
     } catch (Exception & exception) {
         // TigreFramework Exception Standard
         ExceptionHandler * exceptionHandler = (ExceptionHandler *) Configuration::get("Exception.Handler");
@@ -61,25 +73,66 @@ void ApacheHttpCore::handle() {
     }
     //Write the response to the Client (A Successful Request or an Exception)
     stream->write(response.render());
+
+    RequestEvent requestEventEnded("request.ended");
+    Event::emit("request.ended", requestEventEnded);
+}
+
+void ApacheHttpCore::addHeader(std::string name, std::string value) {
+    if(value.empty()){
+        this->headers.push_back(name);
+    }else{
+        this->headers.push_back(name + ": " + value);
+    }
+}
+
+std::string ApacheHttpCore::getHeaders() {
+    const char* const delim = "\r\n";
+
+    std::ostringstream imploded;
+    std::copy(this->headers.begin(), this->headers.end(), std::ostream_iterator<std::string>(imploded, delim));
+
+    return imploded.str();
+}
+
+std::string ApacheHttpCore::getPostData() {
+    auto headers = this->getRequestHeaders();
+
+    std::string post_tmp;
+    // Recebe do apache as informações POST
+    while(headers.find("USER") == headers.end()) {
+        std::string line;
+        getline(std::cin, line);
+
+        if (line.empty()) {
+            break;
+        }
+        post_tmp += line;
+    }
+    return post_tmp;
 }
 
 //Load the Request Header using the envs variable, the envp is the way that apache pass the headers to the CGI
-std::map<std::string, std::string> ApacheHttpCore::getHeaders() {
-    std::map<std::string, std::string> requestHeader;
+std::map<std::string, std::string> ApacheHttpCore::getRequestHeaders() {
+    if(this->requestHeaders.empty()) {
+        std::map<std::string, std::string> requestHeader;
 
-    Application * application = (Application *) Configuration::get("app");
-    auto envp = application->getEnvp();
+        Application *application = (Application *) Configuration::get("app");
+        auto envp = application->getEnvp();
 
-    for (char **env = envp; *env != nullptr; env++){
-        std::string text(*env);
+        for (char **env = envp; *env != nullptr; env++) {
+            std::string text(*env);
 
-        Tigre::String environment = text;
+            Tigre::String environment = text;
 
-        auto piece = environment.explode("=");
-        if(piece.size() == 2) {
-            requestHeader[piece[0].getValue()] = piece[1].getValue();
+            auto piece = environment.explode("=");
+            if (piece.size() == 2) {
+                requestHeader[piece[0].getValue()] = piece[1].getValue();
+            }
         }
+
+        this->requestHeaders = requestHeader;
     }
 
-    return requestHeader;
+    return this->requestHeaders;
 }
