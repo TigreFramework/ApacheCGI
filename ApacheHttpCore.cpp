@@ -60,7 +60,14 @@ void ApacheHttpCore::handle() {
         response = exceptionHandler->render(exception);
     }
     //Write the response to the Client (A Successful Request or an Exception)
-    stream->write(response.render());
+    auto responseData = response.render();
+
+    std::string responseText = "Status: "+responseData["status"]+" "+responseData["status-text"]+"\r\n"
+                         +responseData["header"]+"\r\n"
+                         +"\r\n\r\n"
+                         +responseData["body"];
+
+    stream->write(responseText);
 }
 
 //Load the Request Header using the envs variable, the envp is the way that apache pass the headers to the CGI
