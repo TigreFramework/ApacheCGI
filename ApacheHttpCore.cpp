@@ -1,7 +1,3 @@
-//
-// Created by pedrosoares on 4/29/18.
-//
-
 #include <TigreFramework/Core/Kernel/Response.h>
 #include <TigreFramework/Core/Kernel/Exception.h>
 #include <TigreFramework/Core/Kernel/ExceptionHandler.h>
