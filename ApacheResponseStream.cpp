@@ -1,7 +1,3 @@
-//
-// Created by pedrosoares on 4/28/18.
-//
-
 #include "ApacheResponseStream.h"
 #include <string>
 #include <iostream>

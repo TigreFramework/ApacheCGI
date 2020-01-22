@@ -1,7 +1,3 @@
-//
-// Created by pedrosoares on 4/28/18.
-//
-
 #ifndef TIGREFRAMEWORK_APACHEENV_H
 #define TIGREFRAMEWORK_APACHEENV_H
 

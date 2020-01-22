@@ -1,7 +1,3 @@
-//
-// Created by pedrosoares on 4/28/18.
-//
-
 #include "ApacheEnv.h"
 
 std::string ApacheEnv::get(std::string name, std::string default_value) {

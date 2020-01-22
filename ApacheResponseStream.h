@@ -1,7 +1,3 @@
-//
-// Created by pedrosoares on 4/28/18.
-//
-
 #ifndef TIGREFRAMEWORK_APACHERESPONSESTREAM_H
 #define TIGREFRAMEWORK_APACHERESPONSESTREAM_H
 

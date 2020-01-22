@@ -1,7 +1,3 @@
-//
-// Created by pedrosoares on 4/29/18.
-//
-
 #ifndef TIGREFRAMEWORK_APACHEHTTPCORE_H
 #define TIGREFRAMEWORK_APACHEHTTPCORE_H
 
